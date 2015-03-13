@@ -9,18 +9,18 @@ Vagrant.configure('2') do |config|
   config.ssh.password = 'Titan@VM'
 
   SetupAzureConfiguration = Proc.new do |azure|
-        azure.mgmt_certificate = 'certificate.pfx'
+        azure.mgmt_certificate = 'your_certificate.pfx'
         azure.mgmt_endpoint = 'https://management.core.windows.net'
-        azure.subscription_id = 'e8e29d75-3042-4819-84ac-70637788012c'
+        azure.subscription_id = 'AAAAAAA-BBBBB-CCCC-DDDD-EEEEEEEEEE'
         
         
         azure.vm_image = 'b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04-LTS-amd64-server-20140416.1-en-us-30GB'
         
         azure.vm_user = 'vagrant'         
-        azure.vm_password = 'Titan@VM' 
+        azure.vm_password = 'Vagrant@VM' 
 
 
-        azure.cloud_service_name = 'Mesossphare'         
+        azure.cloud_service_name = 'Mesosphere'         
         azure.vm_location = 'North Europe'
 
         azure.ssh_private_key_file = 'myPrivateKey_rsa'
@@ -28,10 +28,10 @@ Vagrant.configure('2') do |config|
 
         #azure.storage_acct_name = 'NAME OF YOUR STORAGE ACCOUNT' 
         #azure.vm_virtual_network_name = "MoimVNet"
-        #azure.deployment_name = 'Mesossphare' 
+        #azure.deployment_name = 'Mesosphere' 
 
-        #azure.private_key_file = 'MoimCert_key.pem'
-        #azure.certificate_file = 'MoimCert.pem'
+        #azure.private_key_file = 'MyCert_key.pem'
+        #azure.certificate_file = 'MyCert.pem'
   end
 
   config.vm.define 'Mesos-Master-01' do |cfg|
