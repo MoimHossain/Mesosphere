@@ -1,5 +1,7 @@
 ## Mesosphere cluster on Azure
 
+[vagrant](https://roslyn.codeplex.com) has to be installed on a windows machine to run the scripts.
+
 This repository contains two groups of scripts. 
 
 ### Mesos-Ubuntu
