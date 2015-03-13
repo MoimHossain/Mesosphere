@@ -1,0 +1,93 @@
+
+$master_instances = 3
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'azure'
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.boot_timeout = 1000
+  config.ssh.username = 'vagrant' 
+  config.ssh.password = 'Titan@VM'
+
+  SetupAzureConfiguration = Proc.new do |azure|
+        azure.mgmt_certificate = 'certificate.pfx'
+        azure.mgmt_endpoint = 'https://management.core.windows.net'
+        azure.subscription_id = 'e8e29d75-3042-4819-84ac-70637788012c'
+        
+        
+        azure.vm_image = 'b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04-LTS-amd64-server-20140416.1-en-us-30GB'
+        
+        azure.vm_user = 'vagrant'         
+        azure.vm_password = 'Titan@VM' 
+
+
+        azure.cloud_service_name = 'Mesossphare'         
+        azure.vm_location = 'North Europe'
+
+        azure.ssh_private_key_file = 'myPrivateKey_rsa'
+        azure.ssh_certificate_file = 'myCert.pem'        
+
+        #azure.storage_acct_name = 'NAME OF YOUR STORAGE ACCOUNT' 
+        #azure.vm_virtual_network_name = "MoimVNet"
+        #azure.deployment_name = 'Mesossphare' 
+
+        #azure.private_key_file = 'MoimCert_key.pem'
+        #azure.certificate_file = 'MoimCert.pem'
+  end
+
+  config.vm.define 'Mesos-Master-01' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Master-01.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Master-01'
+          azure.ssh_port = '2222'
+          SetupAzureConfiguration.call azure
+      end
+  end
+
+
+  config.vm.define 'Mesos-Master-02' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Master-02.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Master-02'
+          azure.ssh_port = '2223'
+          SetupAzureConfiguration.call azure
+      end
+  end 
+
+
+  config.vm.define 'Mesos-Master-03' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Master-03.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Master-03'
+          azure.ssh_port = '2224'
+          SetupAzureConfiguration.call azure
+      end
+  end
+
+  config.vm.define 'Mesos-Slave-01' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Slave-01.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Slave-01'
+          azure.ssh_port = '2252'
+          SetupAzureConfiguration.call azure
+      end
+  end
+
+  config.vm.define 'Mesos-Slave-02' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Slave-02.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Slave-02'
+          azure.ssh_port = '2253'
+          SetupAzureConfiguration.call azure
+      end
+  end
+
+  config.vm.define 'Mesos-Slave-03' do |cfg|
+      config.vm.provision "shell", keep_color: true, path: "bash/Mesos-Slave-03.sh"
+      config.vm.provider :azure do |azure|        
+          azure.vm_name = 'Mesos-Slave-03'
+          azure.ssh_port = '2254'
+          SetupAzureConfiguration.call azure
+      end
+  end  
+
+end

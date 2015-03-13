@@ -1,0 +1,105 @@
+# Vagrant (=rubi DSL) file that will setup some machines that can build a cluster
+# based on Mesos and Marathon like components
+
+Vagrant.require_version ">= 1.6.0"
+
+
+
+# Defaults for config options defined in CONFIG
+$master_instances = 3
+$slave_instances = 3
+$enable_serial_logging = false
+$share_home = false
+$vm_gui = false
+$vm_memory = 1024
+$vm_cpus = 1
+$shared_folders = {}
+$mesos_port = 5050
+$marathon_port = 8080
+$chronos_port = 4400
+
+
+def vm_gui
+  $vb_gui.nil? ? $vm_gui : $vb_gui
+end
+
+def vm_memory
+  $vb_memory.nil? ? $vm_memory : $vb_memory
+end
+
+def vm_cpus
+  $vb_cpus.nil? ? $vm_cpus : $vb_cpus
+end
+
+Vagrant.configure("2") do |config|
+  # always use Vagrants insecure key
+  config.ssh.insert_key = false
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.provider :virtualbox do |v|
+    v.check_guest_additions = false
+    v.functional_vboxsf     = false
+  end
+
+
+
+  # Creating the server machines
+  (1..$master_instances).each do |i|
+    config.vm.define vm_name = "%s-%02d" % ["master", i] do |config|
+      config.vm.hostname = vm_name
+
+      config.vm.provider :virtualbox do |vb|
+        vb.gui = vm_gui
+        vb.memory = vm_memory
+        vb.cpus = vm_cpus
+      end
+
+      ip = "192.0.2.#{i+100}"      
+      config.vm.network :private_network, ip: ip
+      config.vm.network "forwarded_port", guest: 5050, host: $mesos_port
+      config.vm.network "forwarded_port", guest: 8080, host: $marathon_port
+      config.vm.network "forwarded_port", guest: 4400, host: $chronos_port
+      config.vm.synced_folder ".", "/vagrant", disabled: true 
+
+      $mesos_port = $mesos_port + 1
+      $marathon_port = $marathon_port + 1
+      $chronos_port = $chronos_port + 1
+
+      if Vagrant::Util::Platform.windows?
+        config.vm.provision "shell", path: "masterProvision.sh" , :args => "#{i+100} #{i}"
+
+
+      end
+    end
+  end
+
+
+
+
+
+
+
+  # Creating the slave machines
+  (1..$slave_instances).each do |i|
+    config.vm.define vm_name = "%s-%02d" % ["slave", i] do |config|
+      config.vm.hostname = vm_name
+
+      config.vm.provider :virtualbox do |vb|
+        vb.gui = vm_gui
+        vb.memory = vm_memory
+        vb.cpus = vm_cpus
+      end
+
+      ip = "192.0.2.#{i+50}"
+      config.vm.network :private_network, ip: ip
+      config.vm.synced_folder ".", "/vagrant", disabled: true 
+
+      if Vagrant::Util::Platform.windows?
+        config.vm.provision "shell", path: "slaveProvision.sh", :args => "#{i+50} #{i}"
+      end
+    end
+  end
+
+
+
+
+end
